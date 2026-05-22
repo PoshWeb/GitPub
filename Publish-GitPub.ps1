@@ -1,4 +1,5 @@
 function Publish-GitPub {
+
     <#
     .SYNOPSIS
         Publishes content with GitPub
@@ -17,6 +18,7 @@ function Publish-GitPub {
     
     process {
         $gitPub = Get-GitPub
+
         if ($env:GITHUB_WORKSPACE) {
             "::group::Publish-GitPub Parameters" | Out-Host
             $Parameter | Format-Custom | Out-Host
@@ -28,6 +30,7 @@ function Publish-GitPub {
                 if (-not $Parameter.($source.Name)) { continue }
                 $sourceParamSets = @($Parameter.($source.Name))
                 foreach ($sourceParam in $sourceParamSets) {
+
                     if ($sourceParam -isnot [Collections.IDictionary]) {
                         $sourceParamDict = [Ordered]@{}
                         foreach ($prop in $sourceParam.psobject.properties) {
@@ -66,9 +69,11 @@ function Publish-GitPub {
                 }               
             }
         }
+
         if (-not $wasPublished) {
             Write-Error "No parameters were provided to publishers"
         }
     }
+
 }
 
