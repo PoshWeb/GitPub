@@ -1,88 +1,53 @@
 Get-GitPubRelease
 -----------------
+
 ### Synopsis
 Gets GitHub Releases as Posts
 
 ---
+
 ### Description
 
 Gets GitHub Releases as Posts.
+
 The release content will be considered the body of the post.
 
 ---
+
 ### Parameters
 #### **UserName**
-
 The GitHub Username or Organization.
 
+|Type      |Required|Position|PipelineInput|Aliases|
+|----------|--------|--------|-------------|-------|
+|`[String]`|false   |1       |false        |Owner  |
 
-
-> **Type**: ```[String]```
-
-> **Required**: false
-
-> **Position**: 1
-
-> **PipelineInput**:false
-
-
-
----
 #### **Repository**
-
 The repository
 
+|Type      |Required|Position|PipelineInput|Aliases|
+|----------|--------|--------|-------------|-------|
+|`[String]`|true    |2       |false        |Repo   |
 
-
-> **Type**: ```[String]```
-
-> **Required**: true
-
-> **Position**: 2
-
-> **PipelineInput**:false
-
-
-
----
 #### **ReleaseTag**
-
 One or more tags used for releases.
 By default, `release`.
 
+|Type        |Required|Position|PipelineInput|
+|------------|--------|--------|-------------|
+|`[String[]]`|false   |3       |false        |
 
-
-> **Type**: ```[String[]]```
-
-> **Required**: false
-
-> **Position**: 3
-
-> **PipelineInput**:false
-
-
-
----
 #### **GitHubAccessToken**
-
 The GitHub Access token.
 If this is not provided, $env:GITHUB_TOKEN is present, $env:GITHUB_TOKEN will be used.
 
-
-
-> **Type**: ```[String]```
-
-> **Required**: false
-
-> **Position**: 4
-
-> **PipelineInput**:false
-
-
+|Type      |Required|Position|PipelineInput|Aliases                                  |
+|----------|--------|--------|-------------|-----------------------------------------|
+|`[String]`|false   |4       |false        |PersonalAccessToken<br/>GitHubPat<br/>PAT|
 
 ---
+
 ### Syntax
 ```PowerShell
 Get-GitPubRelease [[-UserName] <String>] [-Repository] <String> [[-ReleaseTag] <String[]>] [[-GitHubAccessToken] <String>] [<CommonParameters>]
 ```
----
