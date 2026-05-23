@@ -66,12 +66,12 @@ function Publish-GitPub
                 } catch {
                     $err = $_
                     Write-Error "Could not run publisher '$publisher': $($err.Message) @ $($err.ScriptStackTrace)"
-                }               
+                }
             }
         }
 
         if (-not $wasPublished) {
-            Write-Error "No parameters were provided to publishers"
+            Write-Warning "No parameters were provided to publishers"
         }
     }
 }
