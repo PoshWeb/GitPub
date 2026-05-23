@@ -47,11 +47,11 @@ Any function that adds `[Reflection.AssemblyMetadata('GitPub.Source','true')]` w
 GitPub ships with the following sources:
 
 
-|Name                                      |
-|------------------------------------------|
-|[Get-GitPubGist](Get-GitPubGist.ps1)      |
-|[Get-GitPubIssue](Get-GitPubIssue.ps1)    |
-|[Get-GitPubRelease](Get-GitPubRelease.ps1)|
+|Name                                               |
+|---------------------------------------------------|
+|[Get-GitPubGist](Commands/Get-GitPubGist.ps1)      |
+|[Get-GitPubIssue](Commands/Get-GitPubIssue.ps1)    |
+|[Get-GitPubRelease](Commands/Get-GitPubRelease.ps1)|
 
 
 
@@ -61,6 +61,6 @@ GitPub ships with the following sources:
 Any function that adds `[Reflection.AssemblyMetadata('GitPub.Publisher','true')]` will be considered a publisher.
 
 
-|Name                                            |
-|------------------------------------------------|
-|[Publish-GitPubJekyll](Publish-GitPubJekyll.ps1)|
+|Name                                                     |
+|---------------------------------------------------------|
+|[Publish-GitPubJekyll](Commands/Publish-GitPubJekyll.ps1)|
