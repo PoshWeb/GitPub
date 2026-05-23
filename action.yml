@@ -11,12 +11,12 @@ inputs:
   SkipGitPubPS1: 
     required: false
     description: 'If set, will not process any files named *.GitPub.ps1'
+  Push: 
+    required: false
+    description: If set, will push changes to the repository.
   CommitMessage: 
     required: false
     description: If provided, will commit any remaining changes made to the workspace with this commit message.
-  TargetBranch: 
-    required: false
-    description: If provided, will checkout a new branch before making the changes.
   PublishParameters: 
     required: false
     description: Any parameters to be sent to Publish-GitPub
@@ -50,8 +50,8 @@ runs:
       id: GitPubAction
       shell: pwsh
       env: 
+        Push: ${{inputs.Push}}
         UserEmail: ${{inputs.UserEmail}}
-        TargetBranch: ${{inputs.TargetBranch}}
         GitPubScript: ${{inputs.GitPubScript}}
         SkipGitPubPS1: ${{inputs.SkipGitPubPS1}}
         UserName: ${{inputs.UserName}}
@@ -62,8 +62,9 @@ runs:
         $Parameters.GitPubScript = ${env:GitPubScript}
         $Parameters.SkipGitPubPS1 = ${env:SkipGitPubPS1}
         $Parameters.SkipGitPubPS1 = $parameters.SkipGitPubPS1 -match 'true';
+        $Parameters.Push = ${env:Push}
+        $Parameters.Push = $parameters.Push -match 'true';
         $Parameters.CommitMessage = ${env:CommitMessage}
-        $Parameters.TargetBranch = ${env:TargetBranch}
         $Parameters.PublishParameters = ${env:PublishParameters}
         $Parameters.PublishParameters = ConvertFrom-JSON @"
         $($Parameters.PublishParameters)
@@ -101,13 +102,13 @@ runs:
         [switch]
         $SkipGitPubPS1,
         
+        # If set, will push changes to the repository.
+        [switch]
+        $Push,
+        
         # If provided, will commit any remaining changes made to the workspace with this commit message.
         [string]
         $CommitMessage,
-        
-        # If provided, will checkout a new branch before making the changes.
-        [string]
-        $TargetBranch,
         
         # Any parameters to be sent to Publish-GitPub
         $PublishParameters,
@@ -188,15 +189,6 @@ runs:
         
         git pull | Out-Host
         
-        if ($TargetBranch) {
-            "::notice title=Expanding target branch string $targetBranch" | Out-Host
-            $TargetBranch = $ExecutionContext.SessionState.InvokeCommand.ExpandString($TargetBranch)
-            "::notice title=Checking out target branch::$targetBranch" | Out-Host
-            git checkout -b $TargetBranch | Out-Host
-        
-            git pull | Out-Host
-        }
-        
         
         #region Load Action Module
         $ActionModuleName     = "GitPub"
@@ -244,7 +236,7 @@ runs:
                 } elseif ($outItem) {
                     $outItem.FullName, (git status $outItem.Fullname -s)
                 }
-            if ($shouldCommit) {
+            if ($shouldCommit -and $Push) {
                 git add $fullName
                 if ($out.Message) {
                     git commit -m "$($out.Message)"
@@ -321,15 +313,13 @@ runs:
             
         
             $checkDetached = git symbolic-ref -q HEAD
-            if (-not $LASTEXITCODE) {
+            if (-not $LASTEXITCODE -and $Push) {
                 "::notice::Pulling Updates" | Out-Host
                 if (-not $targetBranch) { git pull }
                 "::notice::Pushing Changes" | Out-Host
                 
                 $gitPushed = 
-                    if ($TargetBranch -and $anyFilesChanged) {
-                        git push --set-upstream origin $TargetBranch
-                    } elseif ($anyFilesChanged) {
+                    if ($anyFilesChanged) {
                         git push
                     }
                         

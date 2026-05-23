@@ -23,13 +23,13 @@ $GitPubScript,
 [switch]
 $SkipGitPubPS1,
 
+# If set, will push changes to the repository.
+[switch]
+$Push,
+
 # If provided, will commit any remaining changes made to the workspace with this commit message.
 [string]
 $CommitMessage,
-
-# If provided, will checkout a new branch before making the changes.
-[string]
-$TargetBranch,
 
 # Any parameters to be sent to Publish-GitPub
 $PublishParameters,
@@ -110,15 +110,6 @@ if (-not $branchName) {
 
 git pull | Out-Host
 
-if ($TargetBranch) {
-    "::notice title=Expanding target branch string $targetBranch" | Out-Host
-    $TargetBranch = $ExecutionContext.SessionState.InvokeCommand.ExpandString($TargetBranch)
-    "::notice title=Checking out target branch::$targetBranch" | Out-Host
-    git checkout -b $TargetBranch | Out-Host
-
-    git pull | Out-Host
-}
-
 
 #region Load Action Module
 $ActionModuleName     = "GitPub"
@@ -166,7 +157,7 @@ filter ProcessScriptOutput {
         } elseif ($outItem) {
             $outItem.FullName, (git status $outItem.Fullname -s)
         }
-    if ($shouldCommit) {
+    if ($shouldCommit -and $Push) {
         git add $fullName
         if ($out.Message) {
             git commit -m "$($out.Message)"
@@ -243,15 +234,13 @@ if ($CommitMessage -or $anyFilesChanged) {
     
 
     $checkDetached = git symbolic-ref -q HEAD
-    if (-not $LASTEXITCODE) {
+    if (-not $LASTEXITCODE -and $Push) {
         "::notice::Pulling Updates" | Out-Host
         if (-not $targetBranch) { git pull }
         "::notice::Pushing Changes" | Out-Host
         
         $gitPushed = 
-            if ($TargetBranch -and $anyFilesChanged) {
-                git push --set-upstream origin $TargetBranch
-            } elseif ($anyFilesChanged) {
+            if ($anyFilesChanged) {
                 git push
             }
                 
