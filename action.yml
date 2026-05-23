@@ -50,13 +50,13 @@ runs:
       id: GitPubAction
       shell: pwsh
       env: 
-        UserName: ${{inputs.UserName}}
-        GitPubScript: ${{inputs.GitPubScript}}
-        PublishParameters: ${{inputs.PublishParameters}}
-        TargetBranch: ${{inputs.TargetBranch}}
-        SkipGitPubPS1: ${{inputs.SkipGitPubPS1}}
         UserEmail: ${{inputs.UserEmail}}
+        TargetBranch: ${{inputs.TargetBranch}}
+        GitPubScript: ${{inputs.GitPubScript}}
+        SkipGitPubPS1: ${{inputs.SkipGitPubPS1}}
+        UserName: ${{inputs.UserName}}
         CommitMessage: ${{inputs.CommitMessage}}
+        PublishParameters: ${{inputs.PublishParameters}}
       run: |
         $Parameters = @{}
         $Parameters.GitPubScript = ${env:GitPubScript}

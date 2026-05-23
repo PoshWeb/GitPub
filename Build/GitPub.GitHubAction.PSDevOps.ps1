@@ -1,6 +1,9 @@
 ﻿#requires -Module PSDevOps
 #requires -Module GitPub
-Import-BuildStep -ModuleName GitPub
+Import-BuildStep -SourcePath (
+    Join-Path $PSScriptRoot 'GitHub'
+) -BuildSystem GitHubAction
+
 New-GitHubAction -Name "usegitpub" -Description 'Easily Automate Publishing from GitHub' -Action GitPubAction -Icon rss  -ActionOutput ([Ordered]@{
     GitPubScriptRuntime = [Ordered]@{
         description = "The time it took the .GitPubScript parameter to run"
@@ -18,5 +21,8 @@ New-GitHubAction -Name "usegitpub" -Description 'Easily Automate Publishing from
         description = "The number of .GitPub.ps1 files that were run"
         value = '${{steps.GitPubAction.outputs.GitPubPS1Count}}'
     }
-}) |
-    Set-Content .\action.yml -Encoding UTF8 -PassThru
+}) -OutputPath (
+    $PSScriptRoot | 
+        Split-Path | 
+        Join-Path -ChildPath .\action.yml
+)
