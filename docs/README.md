@@ -64,7 +64,3 @@ Any function that adds `[Reflection.AssemblyMetadata('GitPub.Publisher','true')]
 |Name                                            |
 |------------------------------------------------|
 |[Publish-GitPubJekyll](Publish-GitPubJekyll.ps1)|
-
-
-
-

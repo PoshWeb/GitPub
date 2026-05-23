@@ -1,4 +1,5 @@
 function Publish-GitPubJekyll {
+
     <#
     .SYNOPSIS
         Publishes content as Jekyll Posts
@@ -19,45 +20,55 @@ function Publish-GitPubJekyll {
     [Alias('Title')]
     [string]
     $PostTitle,
+
     # The body of the post.
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
     [Alias('Body')]
     [string]
     $PostBody,
+
     # The time the post was created.
     [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
     [Alias('Created_At','CreationTime')]
     [DateTime]
     $PostCreationTime,
+
     # The author of the post
     [Parameter(ValueFromPipelineByPropertyName)]
     [string]
     $PostAuthor,
+
     # One or more tags used for the post
     [Parameter(ValueFromPipelineByPropertyName)]
     [Alias('Tags')]
     [string[]]
     $PostTag,
+
     # The layout used for a post.
     [Parameter(ValueFromPipelineByPropertyName)]
     [string]
     $PostLayout,
+
     # The source URL.  If provided, this will be included in front matter.
     [Parameter(ValueFromPipelineByPropertyName)]
     [Alias('HTML_url')]
     [string]
     $SourceUrl,
+
     # If not set, will summarize all posts in a given year, month, and day.
     # This will generate a file for each unique year, year/month, day combination
     # and will give them the appropriate permalinks.
     [switch]
     $NoSummary,
+
     # If set, will not generate a feed.
     [switch]
     $NoFeed,
+
     # The name of the RSS feed file to generate.
     [string]
     $FeedName = "rss.xml",
+
     [string]
     $FeedTemplate = @'
 ---
@@ -93,6 +104,7 @@ layout: null
     </channel>
 </rss>
 '@,
+
     # The content used for a yearly summary
     [Alias('AnnualSummary')]
     [string]
@@ -111,6 +123,7 @@ permalink: /$Year/
 ## [{{postYear}}](.)    
     {% endif %}
     {% assign hasDisplayedYear = postYear %}
+
     {% if hasDisplayedYearMonth != postYearMonth %}
 ### {{postYearMonth}}    
     {% endif %}
@@ -118,10 +131,12 @@ permalink: /$Year/
 * [ {{ post.title }} ]( {{ post.url }} )
 {% endfor %}
 '@,
+
     [ValidateSet('md','html')]
     [Alias('YearlySummaryFormat','AnnualSummaryFormat', 'AnnualSummaryExtension')]
     [string]
     $YearlySummaryExtension = 'md',
+
     [Alias('MonthSummary')]
     [string]
     $MonthlySummary = @'
@@ -143,9 +158,11 @@ permalink: /$Year/$Month/
 * [ {{ post.title }} ]( {{ post.url }} )
 {% endfor %}    
 '@,
+
     [Alias('MonthlySummaryFormat', 'MonthSummaryFormat','MonthSummaryExtension')]
     [string]
     $MonthlySummaryExtension = 'md',
+
     [string]
     $DailySummary = @'
 ---
@@ -164,6 +181,7 @@ permalink: /$Year/$Month/$Day/
 * [ {{ post.title }} ]( {{ post.url }} )
 {% endfor %}
 '@,
+
     [Alias('DailySummaryFormat', 'DaySummaryFormat', 'DaySummaryExtension')]
     [string]
     $DailySummaryExtension = 'md',
@@ -172,36 +190,47 @@ permalink: /$Year/$Month/$Day/
     [string]
     $OutputPath    
     )
+
     begin {
         if (-not $OutputPath) {
             $OutputPath = Join-Path $pwd "_posts"                        
         }
+
         if (-not (Test-Path $OutputPath)) {
             $null = New-Item -ItemType Directory -Path $OutputPath -Force
         }
-        $MarkdownYamlHeader = [regex]::new(@'
+
+        $MarkdownYamlHeader = @'
+/
 \A\-{3,}                          # At least 3 dashes mark the start of the YAML header
 (?<YAML>(?:.|\s){0,}?(?=\z|\-{3,} # And anything until at least three dashes is the content
 ))\-{3,}                          # Include the dashes in the match, so that the pointer is correct.
-'@, 'Multiline,IgnorePatternWhitespace')
+/Multiline,IgnorePatternWhitespace
+'@
     }
+
     process {
         $formattedDate = $PostCreationTime.ToLocalTime().ToString("yyyy-MM-dd")
         $safeTitle = $PostTitle -replace '[\\/\<\>\:"\|\?\*]' -replace '\s', '-'
         $postPath = Join-Path $OutputPath "$formattedDate-$safeTitle.md"
         $yamlHeader = $MarkdownYamlHeader.Matches($Postbody)
         $PostBody = $MarkdownYamlHeader.Replace($Postbody,'')
+
         $frontMatter = [Ordered]@{PSTypeName='YamlHeader';title= $PostTitle -replace '-', ' '}
         
         if ($PostLayout) {
             $frontMatter['layout'] = $PostLayout
         }
+
+
         if ($PostAuthor) {
             $frontMatter['author'] = $PostAuthor
         }
+
         if ($SourceUrl) {
             $frontMatter['sourceURL'] = $SourceUrl
         }
+
         if ($PostTag) {
             if ($PostTag.Length -eq 1) {
                 $frontMatter['tag'] = $PostTag[0]
@@ -214,17 +243,21 @@ permalink: /$Year/$Month/$Day/
         ([PSCustomObject]$frontMatter | Out-String -Width 1kb).Trim()        
         $PostBody) -join [Environment]::NewLine
     
+
         $PostBody | Set-Content -LiteralPath $postPath -Encoding utf8
         Get-Item -LiteralPath $postPath
     }
+
     end {
         $foundPosts = Get-ChildItem -Path $OutputPath -Filter "*.md"
         $outputParentPath = Split-Path $OutputPath
+
         if ((-not $NoFeed) -and $FeedName) {
             $feedPath = (Join-Path $outputParentPath $FeedName)
             $FeedTemplate | Set-Content -Path $feedPath -Encoding utf8
             Get-Item $feedPath
         }
+
         if ($NoSummary) { return }
         $summaryFiles = @{}
         foreach ($postFound in $foundPosts) {
@@ -251,7 +284,9 @@ permalink: /$Year/$Month/$Day/
                             Join-Path $outputParentPath "$year-$month-$day.$SummaryExtension"
                         }
                     }
+
                 if ($summaryFiles["$summaryFilePath"]) { continue }
+
                 $ExecutionContext.SessionState.InvokeCommand.ExpandString($summaryContent) |
                     Set-Content $summaryFilePath -Encoding UTF8                    
                 $summaryFiles["$summaryFilePath"] = Get-Item $summaryFilePath
@@ -259,6 +294,8 @@ permalink: /$Year/$Month/$Day/
             }
             
         }
+
     }
+
 }
 

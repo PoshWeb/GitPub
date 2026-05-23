@@ -85,5 +85,3 @@ A publisher is a function that finalizes content and publishes it.  GitPub comes
 |Jeykll    | Publish-GitPubJeykll | Publishes content to _posts directories    |
 
 ---
-
-
