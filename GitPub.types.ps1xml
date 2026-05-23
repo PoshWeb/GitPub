@@ -5,6 +5,31 @@
     <Name>GitPub</Name>
     <Members>
       <ScriptProperty>
+        <Name>Publishers</Name>
+        <GetScriptBlock>
+                        &lt;#
+.SYNOPSIS
+    Gets GitPub Publishers
+.DESCRIPTION
+    Gets the commands that are considered GitPub publishers.
+
+    A command is considered a GitPub publisher if it :
+
+    * Has `GitPub` in the name
+    * Starts with `Publish`
+    * Followed by an optional dot or dash
+    * Followed by GitPub
+    * Followed by any other characters until the end.
+#&gt;
+foreach ($command in $this.Commands -match '^Publish[\.\-]?GitPub.+?$') {
+    if ($command.pstypenames -notcontains 'GitPub.Publisher') {
+        $command.pstypenames.add('GitPub.Publisher')
+    }
+    $command
+}
+                    </GetScriptBlock>
+      </ScriptProperty>
+      <ScriptProperty>
         <Name>Sources</Name>
         <GetScriptBlock>
                         &lt;#
