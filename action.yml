@@ -78,16 +78,18 @@ runs:
         }
         Write-Host "::debug:: GitPubAction $(@(foreach ($p in $Parameters.GetEnumerator()) {'-' + $p.Key + ' ' + $p.Value}) -join ' ')"
         & {<#
-        .Synopsis
+        .SYNOPSIS
             GitHub Action for GitPub
-        .Description
+        .DESCRIPTION
             GitHub Action for GitPub.  This will:
         
             * Import GitPub
             * Run all *.GitPub.ps1 files beneath the workflow directory
             * Run a .GitPubScript parameter
             
-            Any files changed can be outputted by the script, and those changes can be checked back into the repo.
+            Any updated files will be outputted by the script.
+        .NOTES
+            If `Push` is provided, those changes can be checked back into the repo.    
             Make sure to use the "persistCredentials" option with checkout.
         #>
         
