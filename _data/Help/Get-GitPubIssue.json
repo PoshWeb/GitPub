@@ -1,0 +1,39 @@
+{
+  "Synopsis": "Gets GitHub Issues as Posts",
+  "Description": "Gets GitHub Issues as Posts.\n\nBy default, will get closed issues with the label 'post'.",
+  "Parameters": [
+    {
+      "Name": null,
+      "Type": null,
+      "Description": "",
+      "Required": false,
+      "Position": 0,
+      "Aliases": null,
+      "DefaultValue": null,
+      "Globbing": false,
+      "PipelineInput": null,
+      "variableLength": false
+    }
+  ],
+  "Notes": [
+    null
+  ],
+  "CommandType": "Function",
+  "Component": [
+    null
+  ],
+  "Inputs": [
+    null
+  ],
+  "Outputs": [
+    null
+  ],
+  "Links": [],
+  "Examples": [
+    {
+      "Title": "EXAMPLE 1",
+      "Markdown": "",
+      "Code": "Get-GitPubIssue -UserName StartAutomating -Repository PipeScript"
+    }
+  ]
+}
