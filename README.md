@@ -61,8 +61,8 @@ GitPub ships with the following sources:
 Any function that adds `[Reflection.AssemblyMetadata('GitPub.Publisher','true')]` will be considered a publisher.
 
 
-|Name                                                     |
-|---------------------------------------------------------|
-|[Publish-GitPubJekyll](Commands/Publish-GitPubJekyll.ps1)|
+|Table|
+|-----|
+||
 
 
