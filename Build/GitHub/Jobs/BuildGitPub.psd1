@@ -4,7 +4,7 @@
     steps = @(
         @{
             name = 'Check out repository'
-            uses = 'actions/checkout@v2'
+            uses = 'actions/checkout@main'
         }, 
         @{    
             name = 'Use PSSVG Action'
@@ -16,19 +16,16 @@
         'RunHelpOut',
         @{
             name = 'Use GitPub Action'
-            uses = 'StartAutomating/GitPub@main'
+            uses = './'
             id  = 'GitPub'
             with = @{
                 PublishParameters = @"
 {
     "Get-GitPubIssue": {
-        "Repository": '`${{github.repository}}'        
+        "Repository": '`${{github.repository}}'
     },
     "Get-GitPubRelease": {
         "Repository": '`${{github.repository}}'        
-    },
-    "Publish-GitPubJekyll": {
-        "OutputPath": "docs/_posts"
     }
 }
 "@
