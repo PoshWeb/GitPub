@@ -2,6 +2,36 @@
 <!-- Generated with EZOut 2.0.6: Install-Module EZOut or https://github.com/StartAutomating/EZOut -->
 <Types>
   <Type>
+    <Name>GitPub</Name>
+    <Members>
+      <ScriptProperty>
+        <Name>Sources</Name>
+        <GetScriptBlock>
+                        &lt;#
+.SYNOPSIS
+    Gets GitPub Sources
+.DESCRIPTION
+    Gets the commands that are considered GitPub sources.
+
+    A command is considered a GitPub source if it :
+
+    * Has `GitPub` in the name
+    * Starts with `Get`
+    * Followed by an optional dot or dash
+    * Followed by GitPub
+    * Followed by any other characters until the end.
+#&gt;
+foreach ($command in $this.Commands -match '^Get[\.\-]?GitPub.+?$') {
+    if ($command.pstypenames -notcontains 'GitPub.Source') {
+        $command.pstypenames.add('GitPub.Source')        
+    }
+    $command
+}
+                    </GetScriptBlock>
+      </ScriptProperty>
+    </Members>
+  </Type>
+  <Type>
     <Name>GitPub.Post.Gist</Name>
     <Members>
       <ScriptProperty>
