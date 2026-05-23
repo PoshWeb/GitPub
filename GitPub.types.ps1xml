@@ -4,6 +4,19 @@
   <Type>
     <Name>GitPub</Name>
     <Members>
+      <MemberSet>
+        <Name>PSStandardMembers</Name>
+        <Members>
+          <PropertySet>
+            <Name>DefaultDisplayPropertySet</Name>
+            <ReferencedProperties>
+              <Name>Version</Name>
+              <Name>Sources</Name>
+              <Name>Publishers</Name>
+            </ReferencedProperties>
+          </PropertySet>
+        </Members>
+      </MemberSet>
       <ScriptProperty>
         <Name>Publishers</Name>
         <GetScriptBlock>
@@ -54,6 +67,12 @@ foreach ($command in $this.Commands -match '^Get[\.\-]?GitPub.+?$') {
 }
                     </GetScriptBlock>
       </ScriptProperty>
+      <NoteProperty>
+        <Name>DefaultDisplay</Name>
+        <Value>Version
+Sources
+Publishers</Value>
+      </NoteProperty>
     </Members>
   </Type>
   <Type>
