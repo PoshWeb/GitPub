@@ -5,8 +5,8 @@
     <polygon points="40,20 45,20 60,50 35,80 32.5,80 55,50" />
   </symbol>
   <symbol id="rss" viewBox="0 0 24 24" width="24" height="24">
-    <path d="M4 11a9 9 0 0 1 9 9" />
-    <path d="M4 4a16 16 0 0 1 16 16" />
+    <path d="M4 11 a9 9 0 0 1 9 9" />
+    <path d="M4 4 a16 16 0 0 1 16 16" />
     <circle cx="5" cy="19" r="1" />
   </symbol>
   <use href="#psChevron" fill="#4488ff" x="110" y="25%" width="10%" height="50%" />
