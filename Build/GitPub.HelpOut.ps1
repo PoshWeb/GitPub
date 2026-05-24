@@ -11,12 +11,12 @@ Save-MarkdownHelp -Module GitPub -PassThru -OutputPath (
 ) |
     Foreach-Object {
         $fileInfo = $_
+        $relatedCommand = $null
         $RelatedCommand = $importedModule.ExportedCommands[
             $fileInfo.Name -replace '\.md$'
         ]
         
         if ($relatedCommand) {
-
             $relatedCommandFile =
                 if ($relatedCommand.ScriptBlock.File) {
                     $relatedCommand.ScriptBlock.File                 
@@ -26,11 +26,10 @@ Save-MarkdownHelp -Module GitPub -PassThru -OutputPath (
             
             if (-not $relatedCommandFile) { return $fileInfo }
 
-            $relatedCommandFile = $relatedCommandFile | 
-                Split-Path | 
+            $relatedCommandFile = $relatedCommandFile |
+                Split-Path |
                 Join-Path -ChildPath $fileInfo.Name
 
-            Move-Item -PassThru -LiteralPath $fileInfo.FullName -Destination $relatedCommandFile            
+            Move-Item -PassThru -LiteralPath $fileInfo.FullName -Destination $relatedCommandFile
         }        
     }
-
