@@ -30,6 +30,11 @@ Save-MarkdownHelp -Module GitPub -PassThru -OutputPath (
                 Split-Path |
                 Join-Path -ChildPath $fileInfo.Name
 
-            Move-Item -PassThru -LiteralPath $fileInfo.FullName -Destination $relatedCommandFile
+            if (-not (Test-Path $relatedCommandFile)) {
+                Move-Item -PassThru -LiteralPath $fileInfo.FullName -Destination $relatedCommandFile
+            } else {
+                Get-Item -Path $relatedCommandFile
+            }
+            
         }        
     }
