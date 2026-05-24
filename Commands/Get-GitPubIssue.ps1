@@ -12,16 +12,33 @@ function Get-GitPubIssue {
     #>
     [Reflection.AssemblyMetaData("GitPub.Source",$true)]        
     param(
+    # The repository
+    [Alias('Repo')]
+    [string]
+    $Repository = $(
+        # If we are running in a GitHub workflow
+        # $end:GITHUB_REPOSITORY should be the workflow
+        if ($env:GITHUB_REPOSITORY) {
+            $env:GITHUB_REPOSITORY
+        } elseif (
+            # Otherwise, if we have the github cli
+            $ExecutionContext.SessionState.InvokeCommand.GetCommand('gh', 'Application')
+        ) {
+            # we can try to use repo view to view the current repo
+            try {
+                gh repo view --json nameWithOwner |
+                    ConvertFrom-Json |
+                        Select-Object -ExpandProperty nameWithOwner
+            } catch {
+                throw $_
+            }
+        }
+    ),
+
     # The GitHub Username or Organization.          
     [Alias('Owner','Org','Organization')]
     [string]
-    $UserName,
-
-    # The repository
-    [Parameter(Mandatory)]
-    [Alias('Repo')]
-    [string]
-    $Repository,
+    $UserName,    
 
     # The issue state.  Can be open, closed, or all
     [ValidateSet('open','closed','all')]
@@ -58,19 +75,46 @@ function Get-GitPubIssue {
         #endregion Prepare headers
 
         #region Prepare url
-        # Accept Owner/Repo format
-        if ($Repository -like '*/*') {
-            if (-not $UserName) {
-                $UserName, $Repository = $Repository -split '\/', 2
-            } else {
-                $null, $Repository = $Repository -split '\/', 2
-            }            
+        #region owner repo format flexibility 
+                
+        # Accept owner/repo format (in all potential forms)
+
+        # If the username is like `*/*`
+        if ($userName -like '*/*' -and -not $Repository) {
+            # set the repo
+            $null, $repository = $UserName -split '/', 2
         }
         
-        if (-not $UserName) {
-            Write-Error "Must Provide -UserName or provide -Repository in the form username / repository"
+        # If the repo is like `*/*` 
+        if ($Repository -like '*/*' -and -not $userName) {
+            # set the username.
+            $userName, $null = $Repository -split '/', 2
+        }
+
+        # If the repo is like `*/*`
+        if ($Repository -like '*/*'){
+            # fix it
+            $null, $Repository = $Repository -split '/', 2
+        }
+
+        # IF the username is like `*/*`
+        if ($userName -like '*/*'){ 
+            # fix it
+            $userName, $null = $UserName -split '/', 2
+        }
+
+        # If there is no repository,
+        if (-not $Repository) {
+            # error out.
+            Write-Error "No -Repository provided"
             return
-        }        
+        }
+
+        if (-not $UserName) {
+            Write-Error "Must Provide -UserName or provide -Repository in the form username/repository"
+            return
+        }
+        #endregion owner repo format flexibility         
 
         $queryString = @(
             if ($IssueState) {
