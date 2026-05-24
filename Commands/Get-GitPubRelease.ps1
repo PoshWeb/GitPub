@@ -9,17 +9,34 @@ function Get-GitPubRelease {
         The release content will be considered the body of the post.
     #>
     [Reflection.AssemblyMetaData("GitPub.Source",$true)]        
-    param(      
+    param(    
+    # The repository    
+    [Alias('Repo')]
+    [string]
+    $Repository = $(
+        # If we are running in a GitHub workflow
+        # $end:GITHUB_REPOSITORY should be the workflow
+        if ($env:GITHUB_REPOSITORY) {
+            $env:GITHUB_REPOSITORY
+        } elseif (
+            # Otherwise, if we have the github cli
+            $ExecutionContext.SessionState.InvokeCommand.GetCommand('gh', 'Application')
+        ) {
+            # we can try to use repo view to view the current repo
+            try {
+                gh repo view --json nameWithOwner | 
+                    ConvertFrom-Json | 
+                    Select-Object -ExpandProperty nameWithOwner
+            } catch {
+                throw $_
+            }
+        }
+    ),
+
     # The GitHub Username or Organization.          
     [Alias('Owner')]
     [string]
-    $UserName,
-
-    # The repository
-    [Parameter(Mandatory)]
-    [Alias('Repo')]
-    [string]
-    $Repository,
+    $UserName,    
 
     # One or more tags used for releases.
     # By default, `release`.
@@ -30,13 +47,17 @@ function Get-GitPubRelease {
     # If this is not provided, $env:GITHUB_TOKEN is present, $env:GITHUB_TOKEN will be used.
     [Alias('PersonalAccessToken','GitHubPat', 'PAT')]
     [string]
-    $GitHubAccessToken
+    $GitHubAccessToken,
+
+    # If set, will refresh cached results
+    [Alias('RefreshCache')]
+    [switch]
+    $Force
     )
 
     process {
-        $invokeSplat = @{
-            Headers = @{}            
-        }
+        #region Prepare headers
+        $invokeSplat = @{Headers = @{}}
 
         if (-not $GitHubAccessToken -and $env:GITHUB_TOKEN) {
             $GitHubAccessToken = $env:GITHUB_TOKEN
@@ -45,9 +66,43 @@ function Get-GitPubRelease {
         if ($GitHubAccessToken) {
             $invokeSplat.Headers.Authentication = "Bearer $gitHubAccessToken"
         }
+        #endregion Prepare headers
 
-        if ($Repository -like '*/*' -and -not $UserName) {
-            $UserName, $Repository = $Repository -split '\/', 2
+        #region Prepare url
+
+        #region owner repo format flexibility 
+        
+        # Accept owner/repo format (in all potential forms)
+
+        # If the username is like `*/*`
+        if ($userName -like '*/*' -and -not $Repository) {
+            # set the repo
+            $null, $repository = $UserName -split '/', 2
+        }
+        
+        # If the repo is like `*/*` 
+        if ($Repository -like '*/*' -and -not $userName) {
+            # set the username.
+            $userName, $null = $Repository -split '/', 2
+        }
+
+        # If the repo is like `*/*`
+        if ($Repository -like '*/*'){
+            # fix it
+            $null, $Repository = $Repository -split '/', 2
+        }
+
+        # IF the username is like `*/*`
+        if ($userName -like '*/*'){ 
+            # fix it
+            $userName, $null = $UserName -split '/', 2
+        }
+
+        # If there is no repository,
+        if (-not $Repository) {
+            # error out.
+            Write-Error "No -Repository provided"
+            return
         }
 
         if (-not $UserName) {
@@ -55,18 +110,33 @@ function Get-GitPubRelease {
             return
         }
 
+
+        $releasesUrl = 
+            'https://api.github.com/repos/',
+                $UserName,'/',$repository,
+                    '/releases',
+                        '?per_page=100' -join ''
+        #endregion Prepare url
         
-        $releases =
-            Invoke-RestMethod ('https://api.github.com/repos/',$UserName,'/',$repository,'/releases' -join '')@invokeSplat
+        #region Cache Query and Output
+        # Create a cache if it does not exist
+        if (-not $script:Cache) {$script:Cache = [Ordered]@{}}
+        
+        # If -Force is set, remove the gists url from the cache
+        if ($Force) { $script:Cache.Remove($releasesUrl)}
 
-        foreach ($rel in $releases) {
-            $rel | Add-Member NoteProperty 'Tags' @($ReleaseTag) -Force
-            $rel.pstypenames.clear()
-            $rel.pstypenames.add('GitPub.Post.Release')
-            $rel.pstypenames.add('GitPub.Post')
-            $rel       
+        if (-not $script:Cache[$releasesUrl]) {
+            $script:Cache[$releasesUrl] = Invoke-RestMethod $releasesUrl @invokeSplat
+            foreach ($release in $script:Cache[$releasesUrl]) {
+                $release | Add-Member NoteProperty 'Tags' @($ReleaseTag) -Force
+                $release.pstypenames.clear()
+                $release.pstypenames.add('GitPub.Post.Release')
+                $release.pstypenames.add('GitPub.Post')
+                $release
+            }
         }
+        $script:Cache[$releasesUrl]
+        #endregion Cache Query and Output
     }
-
 }
 
