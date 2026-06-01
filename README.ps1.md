@@ -51,6 +51,7 @@ GitPub ships with the following sources:
     [PSCustomObject]@{
         Table = Get-GitPub | 
             Select-Object -ExpandProperty Sources |
+            Where-Object { $_ -is [Management.Automation.FunctionInfo] } |
             .Name .Link {
                 $_.ScriptBlock.File.Substring("$rootPath".Length) -replace '^[\\/]'
             }
@@ -68,6 +69,7 @@ Any function that adds `[Reflection.AssemblyMetadata('GitPub.Publisher','true')]
     [PSCustomObject]@{
         Table = Get-GitPub | 
             Select-Object -ExpandProperty Publishers |
+            Where-Object { $_ -is [Management.Automation.FunctionInfo] } |
             .Name .Link {
                 $_.ScriptBlock.File.Substring("$rootPath".Length) -replace '^[\\/]'
             }
