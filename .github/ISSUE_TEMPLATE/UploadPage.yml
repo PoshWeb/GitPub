@@ -1,0 +1,21 @@
+name: Upload Page
+description: Upload a Page
+labels: ["draft"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Upload a file and it will become the page
+  - type: input
+    id: url
+    required: true
+    attributes:
+      label: url
+      description: The page url
+  - type: upload
+    id: Upload
+    attributes:
+      label: File
+      description: Upload a file and it will become the page
+
+
