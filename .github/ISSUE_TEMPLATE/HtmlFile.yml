@@ -1,0 +1,24 @@
+name: HTML
+description: Custom HTML Page
+labels: ["draft"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Enter inline html and it will become the page.
+  - type: input
+    id: Url
+    attributes:
+      label: url
+      description: The page url
+    validations:
+      required: true
+  - type: textarea
+    id: html
+    attributes:
+      label: html
+      description: The page html
+      render: html
+    validations:
+      required: true    
+  
