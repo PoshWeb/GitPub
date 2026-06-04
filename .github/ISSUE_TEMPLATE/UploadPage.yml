@@ -7,11 +7,12 @@ body:
       value: |
         Upload a file and it will become the page
   - type: input
-    id: url
-    required: true
+    id: url    
     attributes:
       label: url
       description: The page url
+    validations:
+      required: true
   - type: upload
     id: Upload
     attributes:
